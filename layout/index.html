@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsAppClone</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./styles/css/normalize.css">
+    <link rel="stylesheet" href="./styles/css/main.css">
+    <link rel="stylesheet" href="./styles/css/header.css">
+    <link rel="stylesheet" href="./styles/css/footer.css">
+    <link rel="stylesheet" href="./styles/css/contacts.css">
+    <link rel="stylesheet" href="./styles/css/messages.css">
+</head>
+<body>
+    <header class="header">
+        <h1 class="header__title">WhatsAppClone</h1>
+        <span class="settings">:</span>
+    </header>
+    <aside class="contact-list">
+        <h2 class="contact-list__title">Contacts</h2>
+        <ul class="contact-list__list">
+            <li>
+                <a href="#" class="contact-list__link">
+                    <img class="contact__img" src="./assets/images/profile-icon-9.png" alt="Profile image">
+                    <h3 class="contact__name">Contact Name 1</h3>
+                    <span class="contact__time">17:29</span>
+                    <p class="contact__message">Last message</p>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="contact-list__link">
+                    <img class="contact__img" src="./assets/images/profile-icon-9.png" alt="Profile image">
+                    <h3 class="contact__name">Contact Name 1</h3>
+                    <span class="contact__time">17:29</span>
+                    <p class="contact__message">Last message</p>
+                </a>
+            </li>
+        </ul>
+        <a href="#" class="contact-list__add">Add Contact</a>
+    </aside>
+    <main class="main">
+        <header class="selected-contact">
+            <img class="selected-contact__img" src="./assets/images/profile-icon-9.png" alt="Profile picture">
+            <h2 class="selected-contact__name">Contact Number X</h2>
+        </header>
+        <div class="messages">
+            <div class="message message--me">
+                <p class="message__content">This is my message</p>
+                <span class="message__time">16:10</span>
+            </div>
+            <div class="message message--other">
+                <p class="message__content">This is someone's message</p>
+                <span class="message__time">16:08</span>
+            </div>
+            <div class="message message--other">
+                <p class="message__content">This is someone's message that is very very long and boring</p>
+                <span class="message__time">16:04</span>
+            </div>
+            <div class="message message--other">
+                <p class="message__content">This is someone's message that is very very long and boring</p>
+                <span class="message__time">16:04</span>
+            </div>
+        </div>
+        <form class="message-form">
+            <label class="message-form__label" for="message">Enter message: </label>
+            <textarea class="message-form__text" rows="6" name="message" id="message" placeholder="Enter your message..." required></textarea>
+            <button class="message-form__submit">
+                <img class="submit__img" src="./assets/icons/send.svg" alt="Send">
+            </button>
+        </form>
+    </main>
+    <footer class="footer">
+        <h3>WhatsAppClone @2022</h3>
+    </footer>
+</body>
+</html>
