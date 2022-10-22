@@ -1,0 +1,19 @@
+.header {
+  grid-area: header;
+
+  background: var(--secondary-bg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header__title {
+  letter-spacing: 2px;
+  font-size: clamp(1.5rem, 3vh, 3rem);
+  margin-left: 1em;
+}
+
+.settings {
+  margin-right: 2rem;
+  font-weight: bold;
+}

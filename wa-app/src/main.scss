@@ -1,0 +1,37 @@
+@use './normalize.scss';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-bg: rgb(46, 46, 46);
+  --secondary-bg: rgb(0, 131, 0);
+
+  --primary-font-clr: rgb(223, 223, 223);
+
+  --primary-ff: 'Roboto', sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  color: var(--primary-font-clr);
+}
+
+body {
+  font-family: var(--primary-ff);
+
+  display: grid;
+  grid-template-columns: clamp(200px, 25%, 400px) 1fr;
+  grid-template-rows: clamp(1.5rem, 7%, 4rem) 1fr 3%;
+  grid-template-areas:
+    'header header'
+    'contacts main'
+    'footer footer';
+
+  background: var(--primary-bg);
+}
