@@ -26,7 +26,8 @@
   border-top: 2px solid grey;
 
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .message {

@@ -22,7 +22,10 @@ body {
   color: var(--primary-font-clr);
 }
 
-body {
+.container {
+  height: 100%;
+  width: 100%;
+
   font-family: var(--primary-ff);
 
   display: grid;

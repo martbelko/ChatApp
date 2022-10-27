@@ -1,14 +1,7 @@
 import { atom } from "recoil";
 import { UserModel } from "./Models";
 
-const defaultUser: UserModel = {
-    id: 1,
-    username: "Laco",
-    messages: [],
-    conversations: []
-}
-
-export const currentUserState = atom({
-    key: 'UserIdState',
-    default: defaultUser
+export const localUserState = atom<UserModel | undefined>({
+    key: 'LocalUserState',
+    default: undefined
 });

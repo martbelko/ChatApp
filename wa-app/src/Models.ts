@@ -2,8 +2,8 @@ export interface UserModel
 {
     id: number;
     username: string;
-    messages: Array<MessageModel>;
-    conversations: Array<ConversationModel>;
+    messages?: Array<MessageModel>;
+    conversations?: Array<ConversationModel>;
 }
 
 export interface MessageModel
@@ -12,12 +12,12 @@ export interface MessageModel
     content: string;
     datetime: Date;
     author: UserModel;
-    conversation: ConversationModel;
+    conversation?: ConversationModel;
 }
 
 export interface ConversationModel
 {
     id: number;
-    users: Array<UserModel>;
+    members: Array<UserModel>;
     messages: Array<MessageModel>;
 }

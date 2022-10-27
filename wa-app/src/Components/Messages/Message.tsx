@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRecoilValue } from 'recoil';
-import { userIdState } from '../../atoms';
+import { localUserState } from '../../Atoms';
 import './Messages.scss';
 
 interface Props
@@ -13,9 +13,10 @@ interface Props
 export const Message: React.FC<Props> = ({ authorId, content, datetime }) => {
     const hours = datetime.getHours();
     const mins = datetime.getMinutes();
-    const userId = useRecoilValue(userIdState);
+    const localUser = useRecoilValue(localUserState);
+
     return (
-        <div className={"message " + (userId == authorId ? 'message--me' : 'message--other')}>
+        <div className={"message " + (localUser!.id == authorId ? 'message--me' : 'message--other')}>
             <p className="message__content">{content}</p>
             <span className="message__time">{hours + ':' + mins}</span>
         </div>
