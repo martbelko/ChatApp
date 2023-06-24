@@ -13,7 +13,7 @@ namespace wa_api.Models
 		public string Content { get; set; } = null!;
 
 		[Required]
-		public DateTime Time { get; set; }
+		public DateTime CreatedAt { get; set; }
 
 		[Required]
 		public User Author { get; set; } = null!;

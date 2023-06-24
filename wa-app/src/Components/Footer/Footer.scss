@@ -1,9 +1,10 @@
 .footer {
-  font-size: clamp(0.1rem, 1vh, 1rem);
-  grid-area: footer;
+	display: flex;
+	grid-area: footer;
+	align-items: center;
+	justify-content: center;
 
-  background: #000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	font-size: clamp(0.1rem, 1vh, 1rem);
+
+	background: #000;
 }

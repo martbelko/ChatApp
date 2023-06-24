@@ -8,7 +8,7 @@ using wa_api.Data;
 
 #nullable disable
 
-namespace wa_api.Migrations
+namespace waapi.Migrations
 {
     [DbContext(typeof(WaDbContext))]
     partial class WaDbContextModelSnapshot : ModelSnapshot
@@ -17,7 +17,7 @@ namespace wa_api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.10")
+                .HasAnnotation("ProductVersion", "7.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -68,7 +68,7 @@ namespace wa_api.Migrations
                     b.Property<int>("ConversationId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("Time")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
@@ -80,6 +80,58 @@ namespace wa_api.Migrations
                     b.ToTable("Messages");
                 });
 
+            modelBuilder.Entity("wa_api.Models.Password", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<byte[]>("Hash")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<byte[]>("Salt")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Passwords");
+                });
+
+            modelBuilder.Entity("wa_api.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Content")
+                        .IsUnique();
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("wa_api.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -88,11 +140,18 @@ namespace wa_api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.HasIndex("Username")
                         .IsUnique();
@@ -134,6 +193,28 @@ namespace wa_api.Migrations
                     b.Navigation("Conversation");
                 });
 
+            modelBuilder.Entity("wa_api.Models.Password", b =>
+                {
+                    b.HasOne("wa_api.Models.User", "User")
+                        .WithOne("Password")
+                        .HasForeignKey("wa_api.Models.Password", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("wa_api.Models.RefreshToken", b =>
+                {
+                    b.HasOne("wa_api.Models.User", "Owner")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
             modelBuilder.Entity("wa_api.Models.Conversation", b =>
                 {
                     b.Navigation("Messages");
@@ -142,6 +223,11 @@ namespace wa_api.Migrations
             modelBuilder.Entity("wa_api.Models.User", b =>
                 {
                     b.Navigation("Messages");
+
+                    b.Navigation("Password")
+                        .IsRequired();
+
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

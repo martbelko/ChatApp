@@ -2,13 +2,8 @@
   grid-area: contacts;
   border-right: 2px solid grey;
   overflow-y: auto;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  flex-direction: column;
   justify-items: start;
 }
 
@@ -23,17 +18,10 @@
 
 .contact-list__list {
   overflow-y: auto;
-  -ms-overflow-style: none;
-  /* IE and Edge */
-  scrollbar-width: none;
-  /* Firefox */
-  display: -webkit-box;
-  display: -ms-flexbox;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  flex-direction: column;
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -47,15 +35,12 @@
   margin: 0;
   height: clamp(50px, 8vh, 80px);
   border-bottom: 1px solid grey;
-  display: -ms-grid;
   display: grid;
-  -ms-grid-columns: clamp(10px, 30%, 50px) 1fr 5ch;
-      grid-template-columns: clamp(10px, 30%, 50px) 1fr 5ch;
-  -webkit-column-gap: 0.5em;
-          column-gap: 0.5em;
-  -ms-grid-rows: 1fr 1fr;
-      grid-template-rows: 1fr 1fr;
-      grid-template-areas: 'image name time' 'image message message';
+  grid-template-columns: clamp(10px, 30%, 50px) 1fr 5ch;
+  -moz-column-gap: 0.5em;
+       column-gap: 0.5em;
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas: "image name time" "image message message";
 }
 
 .contact-list__add {
@@ -73,50 +58,32 @@
 
 .contact__img {
   max-width: 100%;
-  -ms-grid-row: 1;
-  -ms-grid-row-span: 2;
-  -ms-grid-column: 1;
   grid-area: image;
-  -ms-flex-item-align: center;
-      -ms-grid-row-align: center;
-      align-self: center;
+  align-self: center;
 }
 
 .contact__name {
-  -ms-grid-row: 1;
-  -ms-grid-column: 2;
   grid-area: name;
   margin: 0;
-  -ms-flex-item-align: center;
-      -ms-grid-row-align: center;
-      align-self: center;
+  align-self: center;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .contact__time {
-  -ms-grid-row: 1;
-  -ms-grid-column: 3;
   grid-area: time;
-  -ms-flex-item-align: center;
-      -ms-grid-row-align: center;
-      align-self: center;
+  align-self: center;
   text-align: center;
   font-size: 0.8rem;
   opacity: 0.7;
 }
 
 .contact__message {
-  -ms-grid-row: 2;
-  -ms-grid-column: 2;
-  -ms-grid-column-span: 2;
   grid-area: message;
-  -ms-flex-item-align: center;
-      -ms-grid-row-align: center;
-      align-self: center;
+  align-self: center;
   margin: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
+}/*# sourceMappingURL=contacts.css.map */

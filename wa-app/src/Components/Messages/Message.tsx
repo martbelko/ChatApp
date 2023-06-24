@@ -1,24 +1,22 @@
 import React from 'react';
-import { useRecoilValue } from 'recoil';
-import { localUserState } from '../../Atoms';
 import './Messages.scss';
 
-interface Props
-{
-    authorId: number;
-    content: string;
-    datetime: Date;
+interface MessageProps {
+	datetime: Date;
+	children: string;
 }
 
-export const Message: React.FC<Props> = ({ authorId, content, datetime }) => {
-    const hours = datetime.getHours();
-    const mins = datetime.getMinutes();
-    const localUser = useRecoilValue(localUserState);
-
-    return (
-        <div className={"message " + (localUser!.id == authorId ? 'message--me' : 'message--other')}>
-            <p className="message__content">{content}</p>
-            <span className="message__time">{hours + ':' + mins}</span>
-        </div>
-    );
+function getTimeString(date: Date) {
+	const hours = date.getHours().toString().padStart(2, '0');
+	const minutes = date.getMinutes().toString().padStart(2, '0');
+	return `${hours}:${minutes}`;
 }
+
+export const Message: React.FC<MessageProps> = ({ children, datetime }) => {
+	return (
+		<div className="message message--other">
+			<p className="message__content">{children}</p>
+			<span className="message__time">{getTimeString(datetime)}</span>
+		</div>
+	);
+};

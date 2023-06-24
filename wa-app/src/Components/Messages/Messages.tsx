@@ -1,59 +1,149 @@
-import React, { useRef } from 'react';
-import { ConversationModel } from '../../Models';
-import { Message } from './Message';
+import React from 'react';
 import './Messages.scss';
+import { Message } from './Message';
 
-interface Props
-{
-    activeConversation: ConversationModel;
-};
+interface MessagesProps {
+	contactName: string;
+}
 
-export const Messages: React.FC<Props> = ({ activeConversation }) => {
-    const textRef = useRef<HTMLTextAreaElement>(null);
+interface MessageModel {
+	content: string;
+	date: Date;
+}
 
-    function addMessage(content: string) {
-        const query = gql`
-          mutation {
-              addMessage(input: {
-              userId: ${currentUser.id},
-              conversationId: ${activeConversation?.id},
-              content: ${content}
-              })
-              {
-              message {
-                  id
-                  content
-                  time
-              }, error
-              }
-          }
-          `;
-        return;
-    };
+export const Messages: React.FC<MessagesProps> = ({ contactName }) => {
+	const messages: Array<MessageModel> = [
+		{
+			content: 'First',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message that is very very long and boring',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message that is very very long and boring',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		},
+		{
+			content: 'This is someone\'s message',
+			date: new Date(Date.now())
+		}
+	];
 
-    function onSendClick(e: React.MouseEvent<HTMLButtonElement>) {
-        const content = textRef.current?.value;
-        if (content != undefined && content.length != 0) {
-            addMessage(content);
-        }
-    };
 
-    return(
-        <main className="main">
-            <header className="selected-contact">
-                <img className="selected-contact__img" src="./assets/images/profile-icon-9.png" alt="Profile picture" />
-                <h2 className="selected-contact__name">Contact Number X</h2>
-            </header>
-            <div className='messages'>
-                {activeConversation.messages.map(m => <Message authorId={m.author.id} content={m.content} datetime={m.datetime} />)}
-            </div>
-            <form className="message-form">
-                <label className="message-form__label" htmlFor="message">Enter message:</label>
-                <textarea ref={textRef} className="message-form__text" rows={6} name="message" id="message" placeholder="Enter your message..." required></textarea>
-                <button onClick={onSendClick} type="button" className="message-form__submit">
-                    <img className="submit__img" src="./assets/icons/send.svg" alt="Send" />
-                </button>
-            </form>
-        </main>
-    )
+	return (
+		<main className='main'>
+			<header className='selected-contact'>
+				<img className='selected-contact__img' src='./assets/images/profile-icon-9.png' alt='Profile picture' />
+				<h2 className='selected-contact__name'>{contactName}</h2>
+			</header>
+			<div className='messages-container'>
+				<div className='messages'>
+					{messages.map((m, i) => <Message datetime={m.date} key={i}>{m.content}</Message>)}
+				</div>
+				<div className='emoji-panel'>
+					<div className='emoji-panel__section'>
+						<h3 className='emoji-panel__header'>Recently used</h3>
+						<div className='emoji-panel__emojies'>
+							<button className='emoji-button'>&#128512;</button>
+							<button className='emoji-button'>&#128514;</button>
+							<button className='emoji-button'>&#128513;</button>
+							<button className='emoji-button'>&#128517;</button>
+						</div>
+					</div>
+					<div className='emoji-panel__section'>
+						<h3 className='emoji-panel__header'>All emojies</h3>
+						<div className='emoji-panel__emojies'>
+							<button className='emoji-button'>&#128512;</button>
+							<button className='emoji-button'>&#128514;</button>
+							<button className='emoji-button'>&#128513;</button>
+							<button className='emoji-button'>&#128517;</button>
+						</div>
+					</div>
+				</div>
+				<form className='message-form'>
+					<label className='message-form__label' htmlFor='emoji'>Emoji</label>
+					<button className='message-form__emoji' id='emoji' type='button'>
+                    E
+					</button>
+
+					<label className='message-form__label' htmlFor='file'>File</label>
+					<button className='message-form__file' id='file' type='button'>
+                    F
+					</button>
+
+					<label className='message-form__label' htmlFor='message'>Enter message</label>
+					<textarea className='message-form__text' rows={6} name='message' id='message' placeholder='Enter your message...' required></textarea>
+					<button className='message-form__submit'>
+						<img className='submit__img' src='./assets/icons/send.svg' alt='Send' />
+					</button>
+				</form>
+			</div>
+		</main>
+	);
 };

@@ -1,19 +1,19 @@
 .header {
-  grid-area: header;
+	display: flex;
+	grid-area: header;
+	align-items: center;
+	justify-content: space-between;
 
-  background: var(--secondary-bg);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+	background: var(--secondary-bg);
 }
 
 .header__title {
-  letter-spacing: 2px;
-  font-size: clamp(1.5rem, 3vh, 3rem);
-  margin-left: 1em;
+	margin-left: 1em;
+	font-size: clamp(1.5rem, 3vh, 3rem);
+	letter-spacing: 2px;
 }
 
 .settings {
-  margin-right: 2rem;
-  font-weight: bold;
+	margin-right: 2rem;
+	font-weight: bold;
 }

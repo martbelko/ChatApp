@@ -1,0 +1,43 @@
+{
+  "env": { "browser": true, "es2020": true },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react-hooks/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": { "ecmaVersion": "latest", "sourceType": "module" },
+  "plugins": ["react-refresh"],
+  "rules": {
+    "react-refresh/only-export-components": "warn",
+    "semi": ["error", "always"],
+    "no-extra-semi": "error",
+    "indent": ["error", "tab"],
+    "no-self-compare": "error",
+    "no-use-before-define": "error",
+    "camelcase": "error",
+    "consistent-return": "error",
+    "capitalized-comments": "error",
+    "dot-notation": "error",
+    "no-bitwise": "error",
+    "no-delete-var": "error",
+    "no-empty": "error",
+    "no-empty-function": "error",
+    "no-empty-static-block": "error",
+    "no-extra-boolean-cast": "error",
+    "no-extra-bind": "error",
+    "no-unused-expressions": "error",
+    "no-trailing-spaces": "error",
+    "object-curly-spacing": ["error", "always"],
+    "semi-spacing": "error",
+    "space-in-parens": ["error", "never"],
+    "no-floating-decimal": "error",
+    "no-global-assign": "warn",
+    "no-inline-comments": "warn",
+    "no-implicit-coercion": "error",
+    "eol-last": ["error", "always"],
+    "linebreak-style": ["error", "unix"],
+    "jsx-quotes": ["error", "prefer-single"],
+    "quotes": ["error", "single"]
+  }
+}
