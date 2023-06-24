@@ -9,24 +9,22 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
-    <PackageReference Include="Castle.Core" Version="5.1.1" />
-    <PackageReference Include="Castle.DynamicProxy" Version="2.2.0" />
     <PackageReference Include="EntityFrameworkCore.Exceptions.PostgreSQL" Version="6.0.3" />
-    <PackageReference Include="FluentValidation" Version="11.4.0" />
-    <PackageReference Include="HotChocolate.AspNetCore" Version="12.15.2" />
-    <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="12.15.2" />
-    <PackageReference Include="HotChocolate.Data.EntityFramework" Version="12.15.2" />
-    <PackageReference Include="HotChocolate.Subscriptions.Redis" Version="12.15.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.1">
+    <PackageReference Include="FluentValidation" Version="11.5.2" />
+    <PackageReference Include="HotChocolate.AspNetCore" Version="13.2.1" />
+    <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="13.2.1" />
+    <PackageReference Include="HotChocolate.Data.EntityFramework" Version="13.2.1" />
+    <PackageReference Include="HotChocolate.Subscriptions.Redis" Version="13.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.1" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.1" />
-    <PackageReference Include="StackExchange.Redis" Version="2.6.86" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.8" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.116" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.31.0" />
   </ItemGroup>
 
   <ItemGroup>

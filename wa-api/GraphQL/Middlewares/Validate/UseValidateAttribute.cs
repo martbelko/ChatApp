@@ -14,7 +14,7 @@ namespace wa_api.GraphQL.Middlewares.Validate
 			_type = typeof(T);
 		}
 
-		public override void OnConfigure(IDescriptorContext context, IArgumentDescriptor descriptor, ParameterInfo parameter)
+		protected override void OnConfigure(IDescriptorContext context, IArgumentDescriptor descriptor, ParameterInfo parameter)
 		{
 			descriptor.Extend().OnBeforeCreate(definition =>
 			{

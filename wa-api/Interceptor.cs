@@ -1,41 +1,37 @@
 ﻿using HotChocolate.AspNetCore;
 using HotChocolate.AspNetCore.Subscriptions;
-using HotChocolate.AspNetCore.Subscriptions.Messages;
+using HotChocolate.AspNetCore.Subscriptions.Protocols;
+using HotChocolate.AspNetCore.Subscriptions.Protocols.Apollo;
 using HotChocolate.Execution;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.Json;
 using wa_api.Security;
 
 namespace wa_api
 {
 	public class SocketSessionInterceptor : DefaultSocketSessionInterceptor
 	{
-		private static Dictionary<ISocketConnection, string> _sockets = new Dictionary<ISocketConnection, string>();
+		private static Dictionary<ISocketSession, string> _sockets = new Dictionary<ISocketSession, string>();
 
-		public async override ValueTask<ConnectionStatus> OnConnectAsync(
-			ISocketConnection connection, InitializeConnectionMessage message,
-			CancellationToken cancellationToken)
+		public override async ValueTask<ConnectionStatus> OnConnectAsync(ISocketSession session, IOperationMessagePayload imessage, CancellationToken cancellationToken)
 		{
-			if (message.Payload == null)
+			var message = imessage.As<InitializeConnectionMessage>();
+			if (message is null || message.Payload is null)
 			{
-				return ConnectionStatus.Reject("Payload is empty");
+				return await ValueTask.FromResult(ConnectionStatus.Reject("Payload is empty"));
 			}
 
-			if (!message.Payload.ContainsKey("authorization"))
+			JsonElement payload = message.Payload ?? default;
+			if (!payload.TryGetProperty("authorization", out var token))
 			{
-				return ConnectionStatus.Reject("Invalid payload");
-			}
-
-			var token = message.Payload["authorization"];
-			if (token == null)
-			{
-				return ConnectionStatus.Reject("Token is empty");
+				return await ValueTask.FromResult(ConnectionStatus.Reject("Token is empty"));
 			}
 
 			var tokenStr = token.ToString();
-			if (tokenStr == null || !tokenStr.StartsWith("Bearer "))
+			if (tokenStr is null || !tokenStr.StartsWith("Bearer "))
 			{
-				return ConnectionStatus.Reject("Token is invalid");
+				return await ValueTask.FromResult(ConnectionStatus.Reject("Token is invalid"));
 			}
 
 			tokenStr = tokenStr.Substring("Bearer ".Length);
@@ -52,32 +48,32 @@ namespace wa_api
 				return ConnectionStatus.Reject("Token is invalid");
 			}
 
-			_sockets.Add(connection, username.ToString()!);
-			return await base.OnConnectAsync(connection, message, cancellationToken);
+			_sockets.Add(session, username.ToString()!);
+			return await base.OnConnectAsync(session, message, cancellationToken);
 		}
 
-		public override ValueTask OnRequestAsync(ISocketConnection connection,
+		public override ValueTask OnRequestAsync(ISocketSession session,
+			string operationSessionId,
 			IQueryRequestBuilder requestBuilder,
 			CancellationToken cancellationToken)
 		{
-			if (!connection.Closed)
+			if (!session.Connection.IsClosed)
 			{
-				connection.HttpContext.Items.Add("username", _sockets[connection]);
-				_sockets.Remove(connection);
+				session.Connection.HttpContext.Items.Add("username", _sockets[session]);
+				_sockets.Remove(session);
 			}
 
-			return base.OnRequestAsync(connection, requestBuilder, cancellationToken);
+			return base.OnRequestAsync(session, operationSessionId, requestBuilder, cancellationToken);
 		}
 
-		public override ValueTask OnCloseAsync(ISocketConnection connection,
-			CancellationToken cancellationToken)
+		public override ValueTask OnCloseAsync(ISocketSession session, CancellationToken cancellationToken)
 		{
-			if (_sockets.ContainsKey(connection))
+			if (_sockets.ContainsKey(session))
 			{
-				_sockets.Remove(connection);
+				_sockets.Remove(session);
 			}
 
-			return base.OnCloseAsync(connection, cancellationToken);
+			return base.OnCloseAsync(session, cancellationToken);
 		}
 	}
 }
