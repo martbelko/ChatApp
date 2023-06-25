@@ -1,9 +1,7 @@
 ﻿using EntityFramework.Exceptions.Common;
 using FluentValidation;
 using HotChocolate.Subscriptions;
-using HotChocolate.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Caching.Distributed;
 using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,15 +16,6 @@ using wa_api.Security;
 
 namespace wa_api.GraphQL
 {
-	class AddUserInputValidator : AbstractValidator<AddUserInput>
-	{
-		public AddUserInputValidator()
-		{
-			RuleFor(p => p.Username).NotEmpty().Length(4, 30);
-			RuleFor(p => p.Password).NotEmpty().Length(8, 30);
-		}
-	}
-
 	public class Mutation
 	{
 		private readonly IDistributedCache _cache;
@@ -99,15 +88,8 @@ namespace wa_api.GraphQL
 		}
 
 		[UseDbContext(typeof(WaDbContext))]
-		public async Task<AddUserPayload> AddUserAsync(AddUserInput input, [ScopedService] WaDbContext context)
+		public async Task<AddUserPayload> AddUserAsync([UseValidate<AddUserInputValidator>] AddUserInput input, [ScopedService] WaDbContext context)
 		{
-			var validator = new AddUserInputValidator();
-			var result = await validator.ValidateAsync(input);
-			if (!result.IsValid)
-			{
-				return new AddUserPayload(null, result.Errors[0].ErrorMessage);
-			}
-
 			var (hash, salt) = SecurityUtils.GeneratePassword(input.Password);
 
 			var user = new User

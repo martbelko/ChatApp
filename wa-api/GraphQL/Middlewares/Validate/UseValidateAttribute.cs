@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-using HotChocolate.Types.Descriptors;
-using HotChocolate.Types.Descriptors.Definitions;
+﻿using HotChocolate.Types.Descriptors;
 using System.Reflection;
 
 namespace wa_api.GraphQL.Middlewares.Validate

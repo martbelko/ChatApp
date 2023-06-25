@@ -1,20 +1,11 @@
-﻿using FluentValidation;
+﻿using FluentValidation.Results;
 using HotChocolate.Resolvers;
-using HotChocolate.Types;
 using HotChocolate.Utilities;
 using wa_api.Data;
-using wa_api.GraphQL.Types;
+using wa_api.Exceptions;
 
 namespace wa_api.GraphQL.Middlewares.Validate
 {
-	internal class EmptyValidationMiddleware : IMiddleware
-	{
-		public override async Task Invoke(IMiddlewareContext context)
-		{
-			await Task.CompletedTask;
-		}
-	}
-
 	public class ValidationMiddleware : IMiddleware
 	{
 		private readonly FieldDelegate _next;
@@ -37,7 +28,12 @@ namespace wa_api.GraphQL.Middlewares.Validate
 					if (validator != null)
 					{
 						var val = context.ArgumentValue<object?>(arg.Name) as dynamic;
-						await validator.ValidateAsync(val);
+						var result = await validator.ValidateAsync(val) as ValidationResult;
+						if (result is not null && !result.IsValid)
+						{
+							// TODO: Format error message as well with the error code
+							throw new ValidationException(result.Errors[0].ErrorMessage);
+						}
 					}
 				}
 			}

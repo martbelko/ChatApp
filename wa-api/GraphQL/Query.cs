@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using wa_api.Data;
-using wa_api.GraphQL.Middlewares.Validate;
 using wa_api.Models;
 
 namespace wa_api.GraphQL
