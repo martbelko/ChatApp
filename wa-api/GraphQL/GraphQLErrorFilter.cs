@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using wa_api.Errors;
-using wa_api.Models;
 
 namespace wa_api.GraphQL
 {

@@ -62,7 +62,7 @@ namespace wa_api.GraphQL
 		public async Task<SignInPayload> SignInAsync([UseValidate<SignInInputValidator>] SignInInput input, [ScopedService] WaDbContext context)
 		{
 			var user = await context.Users.FirstOrDefaultAsync((u) => u.Email == input.Email);
-			if (user == null)
+			if (user is null)
 			{
 				return new SignInPayload(null, "Invalid email or password");
 			}

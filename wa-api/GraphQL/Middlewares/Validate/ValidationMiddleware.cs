@@ -21,8 +21,9 @@ namespace wa_api.GraphQL.Middlewares.Validate
 
 			foreach (var arg in context.Selection.Field.Arguments)
 			{
-				var type = arg.ContextData[ValidationConstants.Validators] as Type;
-				if (type != null)
+				arg.ContextData.TryGetValue(ValidationConstants.Validators, out var obj);
+				var type = obj is null ? null : obj as Type;
+				if (type is not null)
 				{
 					var validator = Activator.CreateInstance(type, context.Services) as dynamic;
 					if (validator != null)

@@ -79,4 +79,5 @@ app.MapControllers();
 app.UseAuthentication();
 app.UseWebSockets();
 app.MapGraphQL();
+
 app.Run();
