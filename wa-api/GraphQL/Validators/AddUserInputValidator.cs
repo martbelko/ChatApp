@@ -5,7 +5,7 @@ namespace wa_api.GraphQL.Validators
 {
 	class AddUserInputValidator : AbstractValidator<AddUserInput>
 	{
-		public AddUserInputValidator(IServiceProvider provider)
+		public AddUserInputValidator(IServiceProvider _)
 		{
 			// TODO: Add messages with error codes
 			RuleFor(p => p.Username).NotEmpty().Length(4, 30);

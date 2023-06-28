@@ -24,6 +24,7 @@ builder.Services
 			.UseExceptionProcessor();
 	})
 	.AddGraphQLServer()
+	.AddErrorFilter<GraphQLErrorFilter>()
 	.UseValidation()
 	.AddSocketSessionInterceptor<SocketSessionInterceptor>()
 	.AddAuthorization()
@@ -49,14 +50,6 @@ builder.Services
 	.AddJwtBearer(options =>
 	{
 		options.TokenValidationParameters = SecurityUtils.GenerateAccessTokenValidationParams();
-		options.Events = new JwtBearerEvents
-		{
-			OnMessageReceived = (MessageReceivedContext context) =>
-			{
-				var xx = context.Request.Headers.ToList();
-				return Task.CompletedTask;
-			}
-		};
 	});
 
 var redisConf = new ConfigurationOptions

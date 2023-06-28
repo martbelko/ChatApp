@@ -1,8 +1,8 @@
-﻿using FluentValidation.Results;
+﻿using FluentValidation;
+using FluentValidation.Results;
 using HotChocolate.Resolvers;
 using HotChocolate.Utilities;
 using wa_api.Data;
-using wa_api.Exceptions;
 
 namespace wa_api.GraphQL.Middlewares.Validate
 {
@@ -31,8 +31,7 @@ namespace wa_api.GraphQL.Middlewares.Validate
 						var result = await validator.ValidateAsync(val) as ValidationResult;
 						if (result is not null && !result.IsValid)
 						{
-							// TODO: Format error message as well with the error code
-							throw new ValidationException(result.Errors[0].ErrorMessage);
+							throw new ValidationException(result.Errors);
 						}
 					}
 				}
