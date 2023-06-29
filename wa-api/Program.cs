@@ -10,6 +10,7 @@ using wa_api.GraphQL.Types.Conversations;
 using wa_api.Security;
 using wa_api;
 using wa_api.GraphQL.Middlewares.Validate;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 SecurityUtils.Init(builder);
@@ -67,6 +68,15 @@ builder.Services
 
 builder.Services.AddControllers();
 
+if (!builder.Environment.IsDevelopment())
+{
+	builder.Services.AddHttpsRedirection(options =>
+	{
+		options.RedirectStatusCode = (int)HttpStatusCode.PermanentRedirect;
+		options.HttpsPort = 443;
+	});
+}
+
 var app = builder.Build();
 
 app.UseCors(x => x
@@ -75,6 +85,7 @@ app.UseCors(x => x
 	.SetIsOriginAllowed((origin) => true)
 	.AllowCredentials());
 
+app.UseHttpsRedirection();
 app.MapControllers();
 app.UseAuthentication();
 app.UseWebSockets();

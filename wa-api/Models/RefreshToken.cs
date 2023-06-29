@@ -15,6 +15,9 @@ namespace wa_api.Models
 		public string Content { get; set; } = null!;
 
 		[Required]
+		public DateTime Family { get; set; } = DateTime.UtcNow;
+
+		[Required]
 		public User Owner { get; set; } = null!;
 	}
 }

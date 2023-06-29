@@ -7,7 +7,6 @@ using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using wa_api.Data;
-using wa_api.Extensions;
 using wa_api.GraphQL.Middlewares.Validate;
 using wa_api.GraphQL.Types;
 using wa_api.GraphQL.Validators;
@@ -25,7 +24,21 @@ namespace wa_api.GraphQL
 			_cache = cache;
 		}
 
-		public async Task<GetAccessTokenPayload> RefreshAccessTokenAsync(GetAccessTokenInput input, ClaimsPrincipal claims)
+		private static void RemoveExpiredTokens(WaDbContext dbContext)
+		{
+			var invalidTokenFilter = (RefreshToken t) =>
+			{
+				var handler = new JwtSecurityTokenHandler();
+				var result = handler.ValidateTokenAsync(t.Content, SecurityUtils.GenerateRefreshTokenValidationParams()).Result;
+				return result.IsValid;
+			};
+
+			var expiredTokens = dbContext.RefreshTokens.Where(invalidTokenFilter);
+			dbContext.RemoveRange(expiredTokens);
+		}
+
+		[UseDbContext(typeof(WaDbContext))]
+		public async Task<GetAccessTokenPayload> RefreshAccessTokenAsync(GetAccessTokenInput input, [ScopedService] WaDbContext dbContext)
 		{
 			var handler = new JwtSecurityTokenHandler();
 			var result = await handler.ValidateTokenAsync(input.RefreshToken, SecurityUtils.GenerateRefreshTokenValidationParams());
@@ -33,24 +46,42 @@ namespace wa_api.GraphQL
 			{
 				var token = handler.ReadJwtToken(input.RefreshToken).Claims.ToDictionary(p => p.Type, p => p.Value);
 				var username = token[ClaimTypes.NameIdentifier];
-				var redisKey = $"{SecurityUtils.REDIS_INSTANCE_NAME}{username}";
-				var allTokens = await _cache.GetRecordAsync<List<string>>(redisKey);
-
-				if (allTokens is not null && allTokens.Contains(input.RefreshToken))
+				var familyStr = token[SecurityUtils.TOKEN_FAMILY_IDENTIFIER];
+				var dbUser = await dbContext.Users.FirstAsync(u => u.Username == username);
+				if (dbUser is null || username is null || DateTime.TryParse(familyStr, out var family))
 				{
-					allTokens.Remove(input.RefreshToken);
-
-					var accessToken = SecurityUtils.GenerateAccessToken(username);
-					var refreshToken = SecurityUtils.GenerateRefreshToken(username);
-
-					allTokens.Add(refreshToken);
-					await _cache.SetRecordAsync(redisKey, allTokens, null, TimeSpan.FromDays(SecurityUtils.REFRESH_TOKEN_DAYS));
-
-					return new GetAccessTokenPayload(accessToken, refreshToken, null);
+					return new GetAccessTokenPayload(null, null, "Refresh token is invalid");
 				}
 
-				await _cache.RemoveAsync(redisKey);
-				return new GetAccessTokenPayload(null, null, "Refresh token is invalid");
+				RemoveExpiredTokens(dbContext);
+
+				var dbRefreshToken = await dbContext.RefreshTokens.FirstAsync(t => t.Owner.Username == username && t.Content ==  input.RefreshToken);
+				if (dbRefreshToken is null)
+				{
+					var familyRefreshToken = await dbContext.RefreshTokens.FirstAsync(t => t.Family == family!);
+					if (familyRefreshToken is not null)
+					{
+						dbContext.RefreshTokens.Remove(familyRefreshToken);
+					}
+
+					await dbContext.SaveChangesAsync();
+					return new GetAccessTokenPayload(null, null, "Breach detected!");
+				}
+
+				dbContext.RefreshTokens.Remove(dbRefreshToken);
+
+				var newRefreshToken = SecurityUtils.GenerateRefreshToken(username, family);
+				await dbContext.RefreshTokens.AddAsync(new RefreshToken
+				{
+					Content = newRefreshToken,
+					Family = family,
+					Owner = dbUser
+				});
+
+				var saveDbTask = dbContext.SaveChangesAsync();
+				var newAccessToken = SecurityUtils.GenerateAccessToken(username);
+				await saveDbTask;
+				return new GetAccessTokenPayload(newAccessToken, newRefreshToken);
 			}
 			catch (Exception)
 			{
@@ -67,23 +98,19 @@ namespace wa_api.GraphQL
 				return new SignInPayload(null, "Invalid email or password");
 			}
 
-			var refreshToken = SecurityUtils.GenerateRefreshToken(input.Email);
+			RemoveExpiredTokens(context);
 
-			var allTokens = await _cache.GetRecordAsync<List<string>>($"{SecurityUtils.REDIS_INSTANCE_NAME}{input.Email}");
-			if (allTokens is null)
+			var timeNow = DateTime.UtcNow;
+			var refreshToken = SecurityUtils.GenerateRefreshToken(input.Email, timeNow);
+
+			await context.RefreshTokens.AddAsync(new RefreshToken
 			{
-				allTokens = new List<string>();
-			}
-
-			allTokens.Add(refreshToken);
-			await _cache.SetRecordAsync($"{SecurityUtils.REDIS_INSTANCE_NAME}{user.Username}",
-				allTokens, null, TimeSpan.FromDays(SecurityUtils.REFRESH_TOKEN_DAYS));
-
-			user.RefreshTokens.Add(new RefreshToken
-			{
-				Content = refreshToken
+				Content = refreshToken,
+				Family = timeNow,
+				Owner = user
 			});
 
+			await context.SaveChangesAsync();
 			return new SignInPayload(refreshToken);
 		}
 

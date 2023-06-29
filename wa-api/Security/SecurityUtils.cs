@@ -18,6 +18,7 @@ namespace wa_api.Security
 		public static int REFRESH_TOKEN_DAYS { get; private set; }
 		public static int ACCESS_TOKEN_MINUTES { get; private set; }
 		public static readonly string REDIS_INSTANCE_NAME = "WhatsAppClone_";
+		public static readonly string TOKEN_FAMILY_IDENTIFIER = "family";
 
 		public static void Init(WebApplicationBuilder builder)
 		{
@@ -39,14 +40,20 @@ namespace wa_api.Security
 			return KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA512, 1000, 512);
 		}
 
-		public static string GenerateRefreshToken(string username)
+		public static string GenerateRefreshToken(string username, DateTime family)
 		{
-			return GenerateToken(username, DateTime.UtcNow.AddDays(REFRESH_TOKEN_DAYS), Builder.Configuration["Jwt:RefreshTokenKey"]!);
+			return GenerateToken(username, DateTime.UtcNow.AddDays(REFRESH_TOKEN_DAYS), family, Builder.Configuration["Jwt:RefreshTokenKey"]!);
+		}
+
+		public static async Task<TokenValidationResult> ValidateRefreshToken(string refreshTokenString)
+		{
+			var handler = new JwtSecurityTokenHandler();
+			return await handler.ValidateTokenAsync(refreshTokenString, GenerateRefreshTokenValidationParams());
 		}
 
 		public static string GenerateAccessToken(string username)
 		{
-			return GenerateToken(username, DateTime.UtcNow.AddMinutes(ACCESS_TOKEN_MINUTES), Builder.Configuration["Jwt:AccessTokenKey"]!);
+			return GenerateToken(username, DateTime.UtcNow.AddMinutes(ACCESS_TOKEN_MINUTES), DateTime.Now, Builder.Configuration["Jwt:AccessTokenKey"]!);
 		}
 
 		[UseDbContext(typeof(WaDbContext))]
@@ -109,13 +116,14 @@ namespace wa_api.Security
 			};
 		}
 
-		private static string GenerateToken(string username, DateTime expires, string signKey)
+		private static string GenerateToken(string username, DateTime expires, DateTime tokenFamily, string signKey)
 		{
 			var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signKey));
 			var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 			var claims = new[]
 			{
-				new Claim(ClaimTypes.NameIdentifier, username)
+				new Claim(ClaimTypes.NameIdentifier, username),
+				new Claim(TOKEN_FAMILY_IDENTIFIER, tokenFamily.ToString())
 			};
 
 			var token = new JwtSecurityToken(

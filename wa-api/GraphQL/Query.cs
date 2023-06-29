@@ -41,6 +41,7 @@ namespace wa_api.GraphQL
 			var username = claims.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (username is null)
 			{
+				// TODO: Throw unauthenticated error
 				return null;
 			}
 
@@ -56,6 +57,7 @@ namespace wa_api.GraphQL
 			var username = claims.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (username is null)
 			{
+				// TODO: Throw unauthenticated error
 				return null;
 			}
 
