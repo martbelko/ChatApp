@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using wa_api.Models;
 using wa_api.Security;
 
@@ -24,7 +25,8 @@ namespace wa_api.Data
 				.WithOne(p => p.User)
 				.HasForeignKey<Password>(p => p.UserId);
 
-			var (hash, salt) = SecurityUtils.GeneratePassword("testpassword");
+			var securityUtils = this.GetService<SecurityUtils>()!;
+			var (hash, salt) = securityUtils.GeneratePassword("testpassword");
 
 			var password = new Password
 			{

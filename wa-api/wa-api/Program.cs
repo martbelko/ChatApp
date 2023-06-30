@@ -11,25 +11,38 @@ using wa_api.Security;
 using wa_api;
 using wa_api.GraphQL.Middlewares.Validate;
 using System.Net;
+using System.Runtime.CompilerServices;
 
 public class Program
 {
-	static void Main(string[] args)
+	private static SecurityUtils CreateSecurityUtils(WebApplicationBuilder builder)
+	{
+		return new SecurityUtils(
+				builder.Configuration["Jwt:RefreshTokenKey"]!,
+				builder.Configuration["Jwt:AccessTokenKey"]!,
+				int.Parse(builder.Configuration["Token:RefreshTokenDays"]!),
+				int.Parse(builder.Configuration["Token:RefreshTokenDays"]!),
+				builder.Configuration["Jwt:Issuer"]!,
+				builder.Configuration["Jwt:Audience"]!
+		);
+	}
+
+	public static void Main(string[] args)
 	{
 		var builder = WebApplication.CreateBuilder(args);
-		SecurityUtils.Init(builder);
 
 		builder.Services
 			.AddHttpContextAccessor()
 			.AddCors()
-			.AddPooledDbContextFactory<WaDbContext>(options =>
+			.AddTransient(provider => CreateSecurityUtils(builder))
+			.AddPooledDbContextFactory<WaDbContext>((provider, options) =>
 			{
 				options
 					.UseNpgsql("Host=localhost:5432;Database=wa_dev;Username=postgres;Password=mysecretpassword") // TODO: Use configuration file instead of raw string
 					.UseExceptionProcessor();
 			})
 			.AddGraphQLServer()
-			.AddErrorFilter<GraphQLErrorFilter>()
+			//.AddErrorFilter<GraphQLErrorFilter>()
 			.UseValidation()
 			.AddSocketSessionInterceptor<SocketSessionInterceptor>()
 			.AddAuthorization()
@@ -54,7 +67,8 @@ public class Program
 			.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(options =>
 			{
-				options.TokenValidationParameters = SecurityUtils.GenerateAccessTokenValidationParams();
+				var securityUtils = CreateSecurityUtils(builder);
+				options.TokenValidationParameters = securityUtils.GenerateAccessTokenValidationParams();
 			});
 
 		var redisConf = new ConfigurationOptions

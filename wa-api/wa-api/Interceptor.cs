@@ -12,7 +12,13 @@ namespace wa_api
 {
 	public class SocketSessionInterceptor : DefaultSocketSessionInterceptor
 	{
+		private SecurityUtils _securityUtils;
 		private static Dictionary<ISocketSession, string> _sockets = new Dictionary<ISocketSession, string>();
+
+		public SocketSessionInterceptor(SecurityUtils securityUtils)
+		{
+			_securityUtils = securityUtils;
+		}
 
 		public override async ValueTask<ConnectionStatus> OnConnectAsync(ISocketSession session, IOperationMessagePayload imessage, CancellationToken cancellationToken)
 		{
@@ -36,7 +42,7 @@ namespace wa_api
 
 			tokenStr = tokenStr.Substring("Bearer ".Length);
 			var handler = new JwtSecurityTokenHandler();
-			var result = await handler.ValidateTokenAsync(tokenStr, SecurityUtils.GenerateAccessTokenValidationParams());
+			var result = await handler.ValidateTokenAsync(tokenStr, _securityUtils.GenerateAccessTokenValidationParams());
 			if (!result.IsValid)
 			{
 				return ConnectionStatus.Reject("Token is invalid");

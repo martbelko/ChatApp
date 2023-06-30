@@ -18,18 +18,20 @@ namespace wa_api.GraphQL
 	public class Mutation
 	{
 		private readonly IDistributedCache _cache;
+		private readonly SecurityUtils _securityUtils;
 
-		public Mutation(IDistributedCache cache)
+		public Mutation(IDistributedCache cache, SecurityUtils securityUtils)
 		{
 			_cache = cache;
+			_securityUtils = securityUtils;
 		}
 
-		private static void RemoveExpiredTokens(WaDbContext dbContext)
+		private static void RemoveExpiredTokens(WaDbContext dbContext, SecurityUtils securityUtils)
 		{
 			var invalidTokenFilter = (RefreshToken t) =>
 			{
 				var handler = new JwtSecurityTokenHandler();
-				var result = handler.ValidateTokenAsync(t.Content, SecurityUtils.GenerateRefreshTokenValidationParams()).Result;
+				var result = handler.ValidateTokenAsync(t.Content, securityUtils.GenerateRefreshTokenValidationParams()).Result;
 				return result.IsValid;
 			};
 
@@ -41,7 +43,7 @@ namespace wa_api.GraphQL
 		public async Task<GetAccessTokenPayload> RefreshAccessTokenAsync(GetAccessTokenInput input, [ScopedService] WaDbContext dbContext)
 		{
 			var handler = new JwtSecurityTokenHandler();
-			var result = await handler.ValidateTokenAsync(input.RefreshToken, SecurityUtils.GenerateRefreshTokenValidationParams());
+			var result = await handler.ValidateTokenAsync(input.RefreshToken, _securityUtils.GenerateRefreshTokenValidationParams());
 			try
 			{
 				var token = handler.ReadJwtToken(input.RefreshToken).Claims.ToDictionary(p => p.Type, p => p.Value);
@@ -53,7 +55,7 @@ namespace wa_api.GraphQL
 					return new GetAccessTokenPayload(null, null, "Refresh token is invalid");
 				}
 
-				RemoveExpiredTokens(dbContext);
+				RemoveExpiredTokens(dbContext, _securityUtils);
 
 				var dbRefreshToken = await dbContext.RefreshTokens.FirstAsync(t => t.Owner.Username == username && t.Content ==  input.RefreshToken);
 				if (dbRefreshToken is null)
@@ -70,7 +72,7 @@ namespace wa_api.GraphQL
 
 				dbContext.RefreshTokens.Remove(dbRefreshToken);
 
-				var newRefreshToken = SecurityUtils.GenerateRefreshToken(username, family);
+				var newRefreshToken = _securityUtils.GenerateRefreshToken(username, family);
 				await dbContext.RefreshTokens.AddAsync(new RefreshToken
 				{
 					Content = newRefreshToken,
@@ -79,7 +81,7 @@ namespace wa_api.GraphQL
 				});
 
 				var saveDbTask = dbContext.SaveChangesAsync();
-				var newAccessToken = SecurityUtils.GenerateAccessToken(username);
+				var newAccessToken = _securityUtils.GenerateAccessToken(username);
 				await saveDbTask;
 				return new GetAccessTokenPayload(newAccessToken, newRefreshToken);
 			}
@@ -98,16 +100,22 @@ namespace wa_api.GraphQL
 				return new SignInPayload(null, "Invalid email or password");
 			}
 
-			var hashedPassword = SecurityUtils.GeneratePassword(input.Password, user.Password.Salt);
-			if (hashedPassword != user.Password.Hash)
+			var dbPassword = await context.Passwords.FirstOrDefaultAsync(x => x.UserId == user.Id);
+			if (dbPassword == null)
 			{
 				return new SignInPayload(null, "Invalid email or password");
 			}
 
-			RemoveExpiredTokens(context);
+			var hashedPassword = _securityUtils.GeneratePassword(input.Password, dbPassword.Salt);
+			if (!hashedPassword.SequenceEqual(dbPassword.Hash))
+			{
+				return new SignInPayload(null, "Invalid email or password");
+			}
+
+			RemoveExpiredTokens(context, _securityUtils);
 
 			var timeNow = DateTime.UtcNow;
-			var refreshToken = SecurityUtils.GenerateRefreshToken(input.Email, timeNow);
+			var refreshToken = _securityUtils.GenerateRefreshToken(input.Email, timeNow);
 
 			await context.RefreshTokens.AddAsync(new RefreshToken
 			{
@@ -123,7 +131,7 @@ namespace wa_api.GraphQL
 		[UseDbContext(typeof(WaDbContext))]
 		public async Task<AddUserPayload> AddUserAsync([UseValidate<AddUserInputValidator>] AddUserInput input, [ScopedService] WaDbContext context)
 		{
-			var (hash, salt) = SecurityUtils.GeneratePassword(input.Password);
+			var (hash, salt) = _securityUtils.GeneratePassword(input.Password);
 
 			var user = new User
 			{

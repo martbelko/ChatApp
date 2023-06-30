@@ -9,25 +9,30 @@ using wa_api.GraphQL.Types;
 
 namespace wa_api.Security
 {
-	public static class SecurityUtils
+	public class SecurityUtils
 	{
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-		private static WebApplicationBuilder Builder;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+		private readonly string _refreshTokenSignKey;
+		private readonly string _accessTokenSignKey;
+		private readonly string _issuer;
+		private readonly string _audience;
 
-		public static int REFRESH_TOKEN_DAYS { get; private set; }
-		public static int ACCESS_TOKEN_MINUTES { get; private set; }
 		public static readonly string REDIS_INSTANCE_NAME = "WhatsAppClone_";
 		public static readonly string TOKEN_FAMILY_IDENTIFIER = "family";
 
-		public static void Init(WebApplicationBuilder builder)
+		public int RefreshTokenDays { get; init; }
+		public int AccessTokenMinutes { get; init; }
+
+		public SecurityUtils(string refreshTokenSignKey, string accessTokenSignKey, int refreshTokenDays, int accessTokenMinutes, string issuer, string audience)
 		{
-			Builder = builder;
-			REFRESH_TOKEN_DAYS = int.Parse(Builder.Configuration["Token:RefreshTokenDays"]!);
-			ACCESS_TOKEN_MINUTES = int.Parse(Builder.Configuration["Token:AccessTokenMinutes"]!);
+			_refreshTokenSignKey = refreshTokenSignKey;
+			_accessTokenSignKey = accessTokenSignKey;
+			RefreshTokenDays = refreshTokenDays;
+			AccessTokenMinutes = accessTokenMinutes;
+			_issuer = issuer;
+			_audience = audience;
 		}
 
-		public static (byte[] Password, byte[] Salt) GeneratePassword(string password)
+		public (byte[] Password, byte[] Salt) GeneratePassword(string password)
 		{
 			var rnd = new Random();
 			var salt = new byte[512];
@@ -35,29 +40,29 @@ namespace wa_api.Security
 			return (Password: GeneratePassword(password, salt), Salt: salt);
 		}
 
-		public static byte[] GeneratePassword(string password, byte[] salt)
+		public byte[] GeneratePassword(string password, byte[] salt)
 		{
 			return KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA512, 1000, 512);
 		}
 
-		public static string GenerateRefreshToken(string username, DateTime family)
+		public string GenerateRefreshToken(string username, DateTime family)
 		{
-			return GenerateToken(username, DateTime.UtcNow.AddDays(REFRESH_TOKEN_DAYS), family, Builder.Configuration["Jwt:RefreshTokenKey"]!);
+			return GenerateToken(username, DateTime.UtcNow.AddDays(RefreshTokenDays), family, _refreshTokenSignKey);
 		}
 
-		public static async Task<TokenValidationResult> ValidateRefreshToken(string refreshTokenString)
+		public async Task<TokenValidationResult> ValidateRefreshToken(string refreshTokenString)
 		{
 			var handler = new JwtSecurityTokenHandler();
 			return await handler.ValidateTokenAsync(refreshTokenString, GenerateRefreshTokenValidationParams());
 		}
 
-		public static string GenerateAccessToken(string username)
+		public string GenerateAccessToken(string username)
 		{
-			return GenerateToken(username, DateTime.UtcNow.AddMinutes(ACCESS_TOKEN_MINUTES), DateTime.Now, Builder.Configuration["Jwt:AccessTokenKey"]!);
+			return GenerateToken(username, DateTime.UtcNow.AddMinutes(AccessTokenMinutes), DateTime.Now, _accessTokenSignKey);
 		}
 
 		[UseDbContext(typeof(WaDbContext))]
-		public static async Task<bool> Authenticate(SignInInput input, [ScopedService] WaDbContext context, CancellationToken cancellationToken)
+		public async Task<bool> Authenticate(SignInInput input, [ScopedService] WaDbContext context, CancellationToken cancellationToken)
 		{
 			var user = await context.Users.FirstOrDefaultAsync(x => x.Email == input.Email, cancellationToken);
 			if (user == null)
@@ -88,17 +93,17 @@ namespace wa_api.Security
 			return true;
 		}
 
-		public static TokenValidationParameters GenerateRefreshTokenValidationParams()
+		public TokenValidationParameters GenerateRefreshTokenValidationParams()
 		{
-			return GenerateTokenValidationParams(Builder.Configuration["Jwt:RefreshTokenKey"]!);
+			return GenerateTokenValidationParams(_refreshTokenSignKey);
 		}
 
-		public static TokenValidationParameters GenerateAccessTokenValidationParams()
+		public TokenValidationParameters GenerateAccessTokenValidationParams()
 		{
-			return GenerateTokenValidationParams(Builder.Configuration["Jwt:AccessTokenKey"]!);
+			return GenerateTokenValidationParams(_accessTokenSignKey);
 		}
 
-		private static TokenValidationParameters GenerateTokenValidationParams(string signKey)
+		private TokenValidationParameters GenerateTokenValidationParams(string signKey)
 		{
 			return new TokenValidationParameters
 			{
@@ -110,13 +115,13 @@ namespace wa_api.Security
 					return expires.HasValue && expires! >= DateTime.UtcNow;
 				},
 				ValidateIssuerSigningKey = true,
-				ValidIssuer = Builder.Configuration["Jwt:Issuer"]!,
-				ValidAudience = Builder.Configuration["Jwt:Audience"]!,
+				ValidIssuer = _issuer,
+				ValidAudience = _audience,
 				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signKey))
 			};
 		}
 
-		private static string GenerateToken(string username, DateTime expires, DateTime tokenFamily, string signKey)
+		private string GenerateToken(string username, DateTime expires, DateTime tokenFamily, string signKey)
 		{
 			var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signKey));
 			var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -127,8 +132,8 @@ namespace wa_api.Security
 			};
 
 			var token = new JwtSecurityToken(
-				issuer: Builder.Configuration["Jwt:Issuer"]!,
-				audience: Builder.Configuration["Jwt:Audience"]!,
+				issuer: _issuer,
+				audience: _audience,
 				claims: claims,
 				expires: expires,
 				signingCredentials: credentials
