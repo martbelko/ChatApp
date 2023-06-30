@@ -90,10 +90,16 @@ namespace wa_api.GraphQL
 		}
 
 		[UseDbContext(typeof(WaDbContext))]
-		public async Task<SignInPayload> SignInAsync([UseValidate<SignInInputValidator>] SignInInput input, [ScopedService] WaDbContext context)
+		public async Task<SignInPayload> SignInAsync(SignInInput input, [ScopedService] WaDbContext context, CancellationToken cancellationToken)
 		{
 			var user = await context.Users.FirstOrDefaultAsync((u) => u.Email == input.Email);
 			if (user is null)
+			{
+				return new SignInPayload(null, "Invalid email or password");
+			}
+
+			var hashedPassword = SecurityUtils.GeneratePassword(input.Password, user.Password.Salt);
+			if (hashedPassword != user.Password.Hash)
 			{
 				return new SignInPayload(null, "Invalid email or password");
 			}
