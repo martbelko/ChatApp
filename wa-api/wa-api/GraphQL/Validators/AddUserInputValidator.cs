@@ -7,15 +7,16 @@ namespace wa_api.GraphQL.Validators
 	{
 		public AddUserInputValidator(IServiceProvider _)
 		{
-			// TODO: Add messages with error codes
 			RuleFor(p => p.Username)
 				.NotNull()
 				.WithMessage("Username must be provided.")
 				.DependentRules(() =>
 				{
 					RuleFor(p => p.Username)
-						.Length(4, 30)
-						.WithMessage(p => $"Username must be between 4 and 30 characters. You entered {p.Username.Length} characters.");
+						.Length(Constants.USERNAME_LENGTH_RANGE.from, Constants.USERNAME_LENGTH_RANGE.to)
+						.WithMessage(p => $"Username must be between {Constants.USERNAME_LENGTH_RANGE.from}" +
+							$" and {Constants.USERNAME_LENGTH_RANGE.to} characters. " +
+							$"You entered {p.Username.Length} characters.");
 				});
 
 			RuleFor(p => p.Password)
@@ -24,8 +25,10 @@ namespace wa_api.GraphQL.Validators
 				.DependentRules(() =>
 				{
 					RuleFor(p => p.Password)
-						.Length(8, 128)
-						.WithMessage(p => $"Password must be between 8 and 128 characters. You entered {p.Password.Length} characters.");
+						.Length(Constants.PASSWORD_LENGTH_RANGE.from, Constants.PASSWORD_LENGTH_RANGE.to)
+						.WithMessage(p => $"Password must be between {Constants.PASSWORD_LENGTH_RANGE.from}" +
+							$" and {Constants.PASSWORD_LENGTH_RANGE.to} characters. " +
+							$"You entered {p.Password.Length} characters.");
 				});
 
 		}

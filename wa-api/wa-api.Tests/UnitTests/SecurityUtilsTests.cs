@@ -8,5 +8,6 @@ namespace wa_api.Tests.UnitTests
 {
 	public class SecurityUtilsTests
 	{
+		// TODO: Add tests
 	}
 }

@@ -1,30 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using wa_api.Controllers.Types;
 using wa_api.Data;
 
 namespace wa_api.Controllers
 {
-	public class CustomAttrAttribute : ValidationAttribute
-	{
-		protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
-		{
-			if (value is null)
-			{
-				throw new ValidationException();
-			}
-
-			var input = value as AccountTakenInput;
-			if (input is null)
-			{
-				throw new ValidationException();
-			}
-
-			return ValidationResult.Success;
-		}
-	}
-
 	public record AccountTakenPayload(bool UsernameTaken, bool EmailTaken);
 
 	[ApiController]
@@ -38,10 +18,16 @@ namespace wa_api.Controllers
 			_dbContextFactory = dbContextFactory;
 		}
 
-		// TODO: Validate input before even accessing database
 		[HttpPost]
-		public async Task<ActionResult<AccountTakenPayload>> Post([FromBody][CustomAttr] AccountTakenInput input)
+		public async Task<ActionResult<AccountTakenPayload>> Post([FromBody] AccountTakenInput input)
 		{
+			var isUsernameValid = input.Username is not null
+				&& input.Username.Length >= Constants.USERNAME_LENGTH_RANGE.from
+				&& input.Username.Length <= Constants.USERNAME_LENGTH_RANGE.to;
+			var isEmailValid = input.Email is not null
+				&& input.Email.Length >=  Constants.EMAIL_LENGTH_RANGE.from
+				&& input.Email.Length <= Constants.EMAIL_LENGTH_RANGE.to;
+
 			await using var dbContext = _dbContextFactory.CreateDbContext();
 			if (dbContext is null)
 			{
@@ -49,8 +35,8 @@ namespace wa_api.Controllers
 				throw new NullReferenceException("Could not connect to database.");
 			}
 
-			var userUsername = input.Username is null ? null : await dbContext.Users.FirstOrDefaultAsync(u => u.Username == input.Username);
-			var userEmail = input.Email is null ? null : await dbContext.Users.FirstOrDefaultAsync(u => u.Email == input.Email);
+			var userUsername = isUsernameValid ? await dbContext.Users.FirstOrDefaultAsync(u => u.Username == input.Username) : null;
+			var userEmail = isEmailValid ? await dbContext.Users.FirstOrDefaultAsync(u => u.Email == input.Email) : null;
 			return new AccountTakenPayload(userUsername is not null, userEmail is not null);
 		}
 	}

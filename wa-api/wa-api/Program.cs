@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using EntityFramework.Exceptions.PostgreSQL;
@@ -10,8 +11,6 @@ using wa_api.GraphQL.Types.Conversations;
 using wa_api.Security;
 using wa_api;
 using wa_api.GraphQL.Middlewares.Validate;
-using System.Net;
-using System.Runtime.CompilerServices;
 
 public class Program
 {
@@ -42,7 +41,7 @@ public class Program
 					.UseExceptionProcessor();
 			})
 			.AddGraphQLServer()
-			//.AddErrorFilter<GraphQLErrorFilter>()
+			.AddErrorFilter<GraphQLErrorFilter>()
 			.UseValidation()
 			.AddSocketSessionInterceptor<SocketSessionInterceptor>()
 			.AddAuthorization()
