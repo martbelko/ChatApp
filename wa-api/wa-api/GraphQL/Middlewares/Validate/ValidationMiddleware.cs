@@ -26,9 +26,14 @@ namespace wa_api.GraphQL.Middlewares.Validate
 				if (type is not null)
 				{
 					var validator = Activator.CreateInstance(type, context.Services) as dynamic;
-					if (validator != null)
+					if (validator is not null)
 					{
 						var val = context.ArgumentValue<object?>(arg.Name) as dynamic;
+						if (val is null)
+						{
+							throw new NullReferenceException("Nothing to validate.");
+						}
+
 						var result = await validator.ValidateAsync(val) as ValidationResult;
 						if (result is not null && !result.IsValid)
 						{

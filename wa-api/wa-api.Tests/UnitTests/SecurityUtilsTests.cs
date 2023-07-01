@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace wa_api.Tests.UnitTests
 {
-    internal class SecurityUtilsTests
-{
-}
+	public class SecurityUtilsTests
+	{
+	}
 }

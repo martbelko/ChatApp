@@ -14,7 +14,7 @@ namespace UnitTests
 		public async Task Validate_ShouldBeOk(string username, string password)
 		{
 			var validator = new AddUserInputValidator(null!);
-			var actual = await validator.ValidateAsync(new AddUserInput(username, password));
+			var actual = await validator.ValidateAsync(new RegisterUserInput(username, password));
 
 			Assert.NotNull(actual);
 			Assert.True(actual.IsValid, actual.Errors.Count > 0 ? actual.Errors[0].ToString() : null);
@@ -27,7 +27,7 @@ namespace UnitTests
 			var expectedError = "Username must be provided.";
 
 			var validator = new AddUserInputValidator(null!);
-			var actual = await validator.ValidateAsync(new AddUserInput(null, "testpassword"));
+			var actual = await validator.ValidateAsync(new RegisterUserInput(null, "testpassword"));
 
 			Assert.NotNull(actual);
 			Assert.False(actual.IsValid);
@@ -49,7 +49,7 @@ namespace UnitTests
 			var expectedError = $"Username must be between 4 and 30 characters. You entered {len} characters.";
 
 			var validator = new AddUserInputValidator(null!);
-			var actual = await validator.ValidateAsync(new AddUserInput(username, password));
+			var actual = await validator.ValidateAsync(new RegisterUserInput(username, password));
 
 			Assert.NotNull(actual);
 			Assert.False(actual.IsValid);
@@ -64,7 +64,7 @@ namespace UnitTests
 			var expectedError = "Password must be provided.";
 
 			var validator = new AddUserInputValidator(null!);
-			var actual = await validator.ValidateAsync(new AddUserInput("testusername", null));
+			var actual = await validator.ValidateAsync(new RegisterUserInput("testusername", null));
 
 			Assert.NotNull(actual);
 			Assert.False(actual.IsValid);
@@ -84,7 +84,7 @@ namespace UnitTests
 			var expectedError = $"Password must be between 8 and 128 characters. You entered {password.Length} characters.";
 
 			var validator = new AddUserInputValidator(null!);
-			var actual = await validator.ValidateAsync(new AddUserInput(username, password));
+			var actual = await validator.ValidateAsync(new RegisterUserInput(username, password));
 
 			Assert.NotNull(actual);
 			Assert.False(actual.IsValid);
@@ -100,7 +100,7 @@ namespace UnitTests
 			var expectedErrorPassword = "Password must be provided.";
 
 			var validator = new AddUserInputValidator(null!);
-			var actual = await validator.ValidateAsync(new AddUserInput(null, null));
+			var actual = await validator.ValidateAsync(new RegisterUserInput(null, null));
 
 			Assert.NotNull(actual);
 			Assert.False(actual.IsValid);
@@ -123,7 +123,7 @@ namespace UnitTests
 			var expectedErrorPassword = $"Password must be between 8 and 128 characters. You entered {password.Length} characters.";
 
 			var validator = new AddUserInputValidator(null!);
-			var actual = await validator.ValidateAsync(new AddUserInput(username, password));
+			var actual = await validator.ValidateAsync(new RegisterUserInput(username, password));
 
 			Assert.NotNull(actual);
 			Assert.False(actual.IsValid);

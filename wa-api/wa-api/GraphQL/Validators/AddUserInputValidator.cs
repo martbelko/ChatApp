@@ -3,7 +3,7 @@ using wa_api.GraphQL.Types;
 
 namespace wa_api.GraphQL.Validators
 {
-	public class AddUserInputValidator : AbstractValidator<AddUserInput>
+	public class AddUserInputValidator : AbstractValidator<RegisterUserInput>
 	{
 		public AddUserInputValidator(IServiceProvider _)
 		{

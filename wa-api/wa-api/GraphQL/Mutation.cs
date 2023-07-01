@@ -129,7 +129,7 @@ namespace wa_api.GraphQL
 		}
 
 		[UseDbContext(typeof(WaDbContext))]
-		public async Task<AddUserPayload> AddUserAsync([UseValidate<AddUserInputValidator>] AddUserInput input, [ScopedService] WaDbContext context)
+		public async Task<RegisterUserPayload> RegisterUserAsync([UseValidate<AddUserInputValidator>] RegisterUserInput input, [ScopedService] WaDbContext context)
 		{
 			var (hash, salt) = _securityUtils.GeneratePassword(input.Password);
 
@@ -150,14 +150,14 @@ namespace wa_api.GraphQL
 			}
 			catch (UniqueConstraintException)
 			{
-				return new AddUserPayload(null, "Username already taken");
+				return new RegisterUserPayload(null, "Username already taken");
 			}
 			catch (Exception)
 			{
-				return new AddUserPayload(null, "Unknown error");
+				return new RegisterUserPayload(null, "Unknown error");
 			}
 
-			return new AddUserPayload(user);
+			return new RegisterUserPayload(user);
 		}
 
 		[UseDbContext(typeof(WaDbContext))]
