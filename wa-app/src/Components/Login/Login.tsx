@@ -1,9 +1,9 @@
 import './Login.scss';
 
-import { FormEvent, useId, useRef, useState } from 'react';
+import { FormEvent, useId, useRef } from 'react';
 import axios from 'axios';
 
-function App(): JSX.Element {
+export default function Login(): JSX.Element {
 	const emailId = useId();
 	const passwordId = useId();
 	const emailRef = useRef<HTMLInputElement>(null);
@@ -43,5 +43,3 @@ function App(): JSX.Element {
 		</div>
 	);
 }
-
-export default App;

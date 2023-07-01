@@ -7,6 +7,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache, from, HttpLink } from '@ap
 import { onError } from '@apollo/client/link/error';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Login from './Components/Login/Login';
+import Register from './Components/Register/Register';
 
 const errorLink = onError((errors) => {
 	if (errors.graphQLErrors) {
@@ -33,6 +34,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 				<Routes>
 					<Route path='/' element={<App />} />
 					<Route path='login' element={<Login />} />
+					<Route path='register' element={<Register />} />
 				</Routes>
 			</BrowserRouter>
 		</ApolloProvider>
